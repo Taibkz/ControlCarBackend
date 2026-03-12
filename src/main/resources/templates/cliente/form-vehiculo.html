@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Nuevo Vehículo - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar</div>
+        <div class="nav-links">
+            <a th:href="@{/cliente/mis-vehiculos}">Volver</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Añadir Vehículo</h1>
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+            <form th:action="@{/cliente/mis-vehiculos/guardar}" th:object="${vehiculo}" method="post">
+                <div>
+                    <label>Matrícula</label>
+                    <input type="text" th:field="*{matricula}" required>
+                </div>
+                <div>
+                    <label>Marca</label>
+                    <input type="text" th:field="*{marca}" required>
+                </div>
+                <div>
+                    <label>Modelo</label>
+                    <input type="text" th:field="*{modelo}" required>
+                </div>
+                <div>
+                    <label>Año</label>
+                    <input type="number" th:field="*{anio}">
+                </div>
+                <button type="submit" class="btn">Guardar Vehículo</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Servicios - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar <span style="font-size: 0.8em; color: var(--text-muted);">| Admin</span></div>
+        <div class="nav-links">
+            <a th:href="@{/admin/panel}">Inicio</a>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <a th:href="@{/admin/vehiculos}">Vehículos</a>
+            <a th:href="@{/admin/servicios}" style="color: var(--secondary-color);">Servicios</a>
+            <a th:href="@{/admin/citas}">Citas</a>
+            <a th:href="@{/logout}">Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Gestión de Servicios de Taller</h1>
+            <a th:href="@{/admin/servicios/nuevo}" class="btn">Nuevo Servicio</a>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="servicio : ${servicios}">
+                        <td th:text="${servicio.nombre}"></td>
+                        <td th:text="${servicio.descripcion}"></td>
+                        <td th:text="${servicio.precio} + ' €'"></td>
+                        <td>
+                            <a th:href="@{/admin/servicios/eliminar/{id}(id=${servicio.id})}"
+                                style="color: var(--primary-color);">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

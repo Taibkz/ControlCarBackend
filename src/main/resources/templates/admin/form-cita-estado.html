@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Editar Cita - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar</div>
+        <div class="nav-links">
+            <a th:href="@{/admin/citas}">Volver</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Actualizar Estado de la Cita</h1>
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+            <div style="margin-bottom: 20px;">
+                <p><strong>Cliente:</strong> <span th:text="${cita.cliente?.nombreCompleto}"></span></p>
+                <p><strong>Vehículo:</strong> <span th:text="${cita.vehiculo?.modelo}"></span></p>
+                <p><strong>Servicio:</strong> <span th:text="${cita.servicio?.nombre}"></span></p>
+                <p><strong>Fecha:</strong> <span
+                        th:text="${#temporals.format(cita.fechaHora, 'dd/MM/yyyy HH:mm')}"></span></p>
+            </div>
+
+            <form th:action="@{/admin/citas/actualizar}" th:object="${cita}" method="post">
+                <input type="hidden" th:field="*{id}">
+                <div>
+                    <label>Estado</label>
+                    <select th:field="*{estado}">
+                        <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Actualizar Estado</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

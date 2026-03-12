@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Reservar Cita - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar</div>
+        <div class="nav-links">
+            <a th:href="@{/cliente/panel}"><i class="fas fa-arrow-left"></i> Volver al Panel</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header style="text-align: center; margin-bottom: 3rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Agendamiento Inteligente</h1>
+            <p style="color: var(--text-muted);">Completa los pasos para reservar tu cita en el taller.</p>
+        </header>
+
+        <!-- Alerta de Error Premium -->
+        <div th:if="${error}" class="alert alert-danger glass-panel"
+            style="max-width: 600px; margin: 0 auto 2rem auto; border-left: 4px solid var(--primary-color);">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <i class="fas fa-exclamation-triangle" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+                <div>
+                    <strong style="display: block; color: var(--text-light);">No se pudo completar la reserva</strong>
+                    <span th:text="${error}" style="font-size: 0.9rem; color: var(--text-muted);"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel" style="max-width: 700px; margin: 0 auto;">
+            <form th:action="@{/cliente/guardar-cita}" method="post">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label><i class="fas fa-car"></i> Tu Vehículo</label>
+                        <select name="vehiculoId" required>
+                            <option value="">Selecciona vehículo...</option>
+                            <option th:each="v : ${vehiculos}" th:value="${v.id}"
+                                th:text="${v.modelo} + ' (' + ${v.matricula} + ')'"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-tools"></i> Servicio</label>
+                        <select name="servicioId" id="servicioSelect" required>
+                            <option value="">Selecciona servicio...</option>
+                            <option th:each="s : ${servicios}" th:value="${s.id}"
+                                th:text="${s.nombre} + ' (' + ${s.duracionMinutos} + ' min) - ' + ${s.precio} + '€'">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Fecha y Hora de la Cita</label>
+                    <div style="position: relative;">
+                        <input type="text" name="fechaHora" id="fechaHora" placeholder="Selecciona una fecha..."
+                            required style="padding-left: 45px;">
+                        <i class="far fa-clock"
+                            style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-color);"></i>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> Disponibilidad sujeta al horario del taller y citas
+                        existentes.
+                    </p>
+                </div>
+
+                <div
+                    style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 2rem; text-align: center;">
+                    <button type="submit" class="btn" style="width: 100%; max-width: 400px;">
+                        <i class="fas fa-check-circle"></i> Confirmar Reservación
+                    </button>
+                    <div
+                        style="margin-top: 15px; display: flex; justify-content: center; gap: 20px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fas fa-clock"></i> L-J: 9:00-20:00*</span>
+                        <span><i class="fas fa-clock"></i> V-S: 11:00-15:00</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem;">
+            * El taller cierra de 14:30 a 16:00 de Lunes a Jueves para mantenimiento interno.
+        </div>
+    </div>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr("#fechaHora", {
+                enableTime: true,
+                dateFormat: "Y-m-d\\TH:i",
+                altInput: true,
+                altFormat: "j \\de F, Y - H:i",
+                locale: "es",
+                minDate: "today",
+                time_24hr: true,
+                disable: [
+                    function (date) {
+                        // Deshabilitar domingos
+                        return (date.getDay() === 0);
+                    }
+                ],
+                onChange: function (selectedDates, dateStr, instance) {
+                    const date = selectedDates[0];
+                    if (!date) return;
+
+                    const day = date.getDay();
+                    const hour = date.getHours();
+                    const mins = date.getMinutes();
+                    const time = hour + (mins / 60);
+
+                    let isValid = true;
+                    if (day >= 1 && day <= 4) { // L-J
+                        const isMorning = time >= 9 && time <= 14.5;
+                        const isEvening = time >= 16 && time <= 20;
+                        if (!isMorning && !isEvening) {
+                            isValid = false;
+                        }
+                    } else if (day === 5 || day === 6) { // V-S
+                        if (time < 11 || time > 15) {
+                            isValid = false;
+                        }
+                    }
+
+                    if (!isValid) {
+                        alert("El horario seleccionado está fuera de las horas de apertura del taller.");
+                        instance.clear();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

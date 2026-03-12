@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Mis Vehículos - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar <span style="font-size: 0.8em; color: var(--text-muted);">| Cliente</span></div>
+        <div class="nav-links">
+            <a th:href="@{/cliente/panel}">Inicio</a>
+            <a th:href="@{/cliente/mis-vehiculos}" style="color: var(--secondary-color);">Mis Vehículos</a>
+            <a th:href="@{/cliente/pedir-cita}" class="btn">Pedir Cita</a>
+            <a th:href="@{/logout}">Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Mis Vehículos</h1>
+            <a th:href="@{/cliente/mis-vehiculos/nuevo}" class="btn">Añadir Vehículo</a>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Año</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="vehiculo : ${vehiculos}">
+                        <td th:text="${vehiculo.matricula}"></td>
+                        <td th:text="${vehiculo.marca}"></td>
+                        <td th:text="${vehiculo.modelo}"></td>
+                        <td th:text="${vehiculo.anio}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

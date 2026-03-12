@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Panel Admin - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar <span style="font-size: 0.8em; color: var(--text-muted);">| Admin</span></div>
+        <div class="nav-links">
+            <a th:href="@{/admin/panel}">Inicio</a>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <a th:href="@{/admin/vehiculos}">Vehículos</a>
+            <a th:href="@{/admin/servicios}">Servicios</a>
+            <a th:href="@{/admin/citas}">Citas</a>
+            <a th:href="@{/logout}" class="btn"
+                style="background: rgba(229, 9, 20, 0.2); border: 1px solid var(--primary-color); padding: 0.5rem 1rem; margin-left: 1rem;">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Panel de Control</h1>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div class="card">
+                <h3>Citas Totales</h3>
+                <p th:text="${totalCitas}" style="font-size: 2rem; font-weight: bold; color: var(--secondary-color);">0
+                </p>
+            </div>
+            <div class="card">
+                <h3>Clientes Registrados</h3>
+                <p th:text="${totalClientes}"
+                    style="font-size: 2rem; font-weight: bold; color: var(--secondary-color);">0</p>
+            </div>
+            <div class="card">
+                <h3>Acciones Rápidas</h3>
+                <a th:href="@{/admin/citas}" class="btn">Ver Citas</a>
+            </div>
+        </div>
+
+        <h2>Últimas Citas</h2>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Servicio</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cita : ${citas}">
+                        <td th:text="${#temporals.format(cita.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${cita.cliente.nombreCompleto}"></td>
+                        <td th:text="${cita.vehiculo.modelo}"></td>
+                        <td th:text="${cita.servicio.nombre}"></td>
+                        <td th:text="${cita.estado}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(citas)}">
+                        <td colspan="5" style="text-align: center; color: var(--text-muted);">No hay citas recientes
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

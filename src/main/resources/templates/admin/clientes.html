@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Clientes - ControlCar</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="brand">ControlCar <span style="font-size: 0.8em; color: var(--text-muted);">| Admin</span></div>
+        <div class="nav-links">
+            <a th:href="@{/admin/panel}">Inicio</a>
+            <a th:href="@{/admin/clientes}" style="color: var(--secondary-color);">Clientes</a>
+            <a th:href="@{/admin/vehiculos}">Vehículos</a>
+            <a th:href="@{/admin/servicios}">Servicios</a>
+            <a th:href="@{/admin/citas}">Citas</a>
+            <a th:href="@{/logout}">Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Gestión de Clientes</h1>
+            <a th:href="@{/admin/clientes/nuevo}" class="btn">Nuevo Cliente</a>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cliente : ${clientes}">
+                        <td th:text="${cliente.id}"></td>
+                        <td th:text="${cliente.nombreCompleto}"></td>
+                        <td th:text="${cliente.username}"></td>
+                        <td th:text="${cliente.email}"></td>
+                        <td>
+                            <a th:href="@{/admin/clientes/eliminar/{id}(id=${cliente.id})}"
+                                style="color: var(--primary-color);">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
