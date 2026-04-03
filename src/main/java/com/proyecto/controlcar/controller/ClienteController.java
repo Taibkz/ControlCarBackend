@@ -1,17 +1,20 @@
 package com.proyecto.controlcar.controller;
 
+import com.proyecto.controlcar.dto.*;
 import com.proyecto.controlcar.model.*;
 import com.proyecto.controlcar.service.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("/cliente")
+@RestController
+@RequestMapping("/api/cliente")
 public class ClienteController {
 
     private final UsuarioService usuarioService;
@@ -32,135 +35,182 @@ public class ClienteController {
         return usuarioService.findByUsername(auth.getName()).orElse(null);
     }
 
-    @GetMapping("/panel")
-    public String panel(Model model) {
+    @GetMapping("/citas")
+    public ResponseEntity<List<CitaDTO>> getMisCitas() {
         Usuario usuario = getUsuarioAutenticado();
-        if (usuario != null) {
-            List<Cita> misCitas = citaService.findByClienteId(usuario.getId());
-            model.addAttribute("citas", misCitas);
-            model.addAttribute("vehiculos", usuario.getVehiculos());
-        }
-        return "cliente/panel";
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        List<CitaDTO> citas = citaService.findByClienteId(usuario.getId()).stream().map(this::mapCitaToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(citas);
     }
 
-    @GetMapping("/mis-vehiculos")
-    public String misVehiculos(Model model) {
+    @GetMapping("/vehiculos")
+    public ResponseEntity<List<VehiculoDTO>> getMisVehiculos() {
         Usuario usuario = getUsuarioAutenticado();
-        if (usuario != null) {
-            model.addAttribute("vehiculos", vehiculoService.findByPropietarioId(usuario.getId()));
-        }
-        return "cliente/mis-vehiculos";
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        List<VehiculoDTO> vehiculos = vehiculoService.findByPropietarioId(usuario.getId())
+            .stream().map(this::mapVehiculoToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(vehiculos);
     }
 
-    @GetMapping("/mis-vehiculos/nuevo")
-    public String nuevoVehiculo(Model model) {
-        model.addAttribute("vehiculo", new Vehiculo());
-        return "cliente/form-vehiculo";
-    }
-
-    @PostMapping("/mis-vehiculos/guardar")
-    public String guardarVehiculo(@ModelAttribute Vehiculo vehiculo) {
+    @GetMapping("/servicios")
+    public ResponseEntity<List<TipoServicio>> getServiciosDisponibles() {
         Usuario usuario = getUsuarioAutenticado();
-        if (usuario != null) {
-            vehiculo.setPropietario(usuario);
-            vehiculoService.save(vehiculo);
-        }
-        return "redirect:/cliente/mis-vehiculos";
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.ok(tipoServicioService.findAll());
     }
 
-    @GetMapping("/pedir-cita")
-    public String pedirCita(Model model) {
+    @GetMapping("/citas/disponibilidad")
+    public ResponseEntity<List<String>> getDisponibilidad(@RequestParam String fecha) {
         Usuario usuario = getUsuarioAutenticado();
-        if (usuario != null) {
-            model.addAttribute("cita", new Cita());
-            model.addAttribute("vehiculos", usuario.getVehiculos());
-            model.addAttribute("servicios", tipoServicioService.findAll());
-        }
-        return "cliente/pedir-cita";
-    }
-
-    @PostMapping("/guardar-cita")
-    public String guardarCita(@RequestParam("vehiculoId") Long vehiculoId,
-            @RequestParam("servicioId") Long servicioId,
-            @RequestParam("fechaHora") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") java.time.LocalDateTime fechaHora,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Usuario usuario = getUsuarioAutenticado();
-        if (usuario != null) {
-            try {
-                Cita cita = new Cita();
-                cita.setCliente(usuario);
-
-                Vehiculo vehiculo = vehiculoService.findById(vehiculoId)
-                        .orElseThrow(() -> new IllegalArgumentException("Vehiculo invalido"));
-                cita.setVehiculo(vehiculo);
-
-                TipoServicio servicio = tipoServicioService.findById(servicioId)
-                        .orElseThrow(() -> new IllegalArgumentException("Servicio invalido"));
-                cita.setServicio(servicio);
-
-                cita.setFechaHora(fechaHora);
-                cita.setEstado(EstadoCita.PENDIENTE);
-                citaService.save(cita);
-            } catch (IllegalArgumentException e) {
-                redirectAttributes.addFlashAttribute("error", e.getMessage());
-                return "redirect:/cliente/pedir-cita";
-            }
-        }
-        return "redirect:/cliente/panel";
-    }
-
-    @PostMapping("/citas/{id}/cancelar")
-    public String cancelarCita(@PathVariable Long id,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        
         try {
-            Usuario usuario = getUsuarioAutenticado();
-            Cita cita = citaService.findById(id).orElse(null);
-
-            if (usuario != null && cita != null && cita.getCliente() != null
-                    && cita.getCliente().getId().equals(usuario.getId())) {
-                cita.setEstado(EstadoCita.CANCELADA);
-                citaService.save(cita);
-                redirectAttributes.addFlashAttribute("success", "Cita cancelada correctamente.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "No se puede cancelar esta cita.");
-            }
+            java.time.LocalDate localDate = java.time.LocalDate.parse(fecha);
+            List<String> horas = citaService.getHorasDisponibles(localDate);
+            return ResponseEntity.ok(horas);
         } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Error al cancelar la cita: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
-        return "redirect:/cliente/panel";
     }
 
-    @GetMapping("/citas/{id}/reprogramar")
-    public String reprogramarCita(@PathVariable Long id, Model model) {
+    @PostMapping("/vehiculos")
+    public ResponseEntity<?> guardarVehiculo(@RequestBody Vehiculo vehiculo) {
+        Usuario usuario = getUsuarioAutenticado();
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        try {
+            vehiculo.setPropietario(usuario);
+            Vehiculo guardado = vehiculoService.save(vehiculo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapVehiculoToDTO(guardado));
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Esta matrícula ya está registrada en el sistema.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al guardar el vehículo.");
+        }
+    }
+
+    @PostMapping("/citas")
+    public ResponseEntity<?> guardarCita(@RequestParam Long vehiculoId,
+                                         @RequestParam Long servicioId,
+                                         @RequestParam String fechaHora) {
+        Usuario usuario = getUsuarioAutenticado();
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        try {
+            Cita cita = new Cita();
+            cita.setCliente(usuario);
+
+            Vehiculo vehiculo = vehiculoService.findById(vehiculoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Vehículo inválido"));
+            cita.setVehiculo(vehiculo);
+
+            TipoServicio servicio = tipoServicioService.findById(servicioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Servicio inválido"));
+            cita.setServicio(servicio);
+
+            cita.setFechaHora(LocalDateTime.parse(fechaHora));
+            cita.setEstado(EstadoCita.PENDIENTE);
+            Cita guardada = citaService.save(cita);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapCitaToDTO(guardada));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/citas/{id}/cancelar")
+    public ResponseEntity<?> cancelarCita(@PathVariable Long id) {
         Usuario usuario = getUsuarioAutenticado();
         Cita cita = citaService.findById(id).orElse(null);
 
-        if (cita != null && cita.getCliente() != null && cita.getCliente().getId().equals(usuario.getId())) {
-            model.addAttribute("cita", cita);
-            model.addAttribute("servicios", tipoServicioService.findAll());
-            return "cliente/reprogramar-cita";
+        if (usuario != null && cita != null && cita.getCliente() != null && cita.getCliente().getId().equals(usuario.getId())) {
+            cita.setEstado(EstadoCita.CANCELADA);
+            Cita actualizada = citaService.save(cita);
+            return ResponseEntity.ok(mapCitaToDTO(actualizada));
         }
-        return "redirect:/cliente/panel";
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede cancelar esta cita.");
     }
 
-    @PostMapping("/citas/{id}/reprogramar")
-    public String guardarReprogramacion(@PathVariable Long id,
-            @RequestParam("fechaHora") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") java.time.LocalDateTime fechaHora,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    @PutMapping("/citas/{id}/reprogramar")
+    public ResponseEntity<?> reprogramarCita(@PathVariable Long id, @RequestParam String fechaHora) {
         Usuario usuario = getUsuarioAutenticado();
         Cita cita = citaService.findById(id).orElse(null);
 
-        if (cita != null && cita.getCliente() != null && cita.getCliente().getId().equals(usuario.getId())) {
+        if (usuario != null && cita != null && cita.getCliente() != null && cita.getCliente().getId().equals(usuario.getId())) {
             try {
-                cita.setFechaHora(fechaHora);
-                citaService.save(cita);
-                redirectAttributes.addFlashAttribute("success", "Cita reprogramada correctamente.");
+                cita.setFechaHora(LocalDateTime.parse(fechaHora));
+                Cita actualizada = citaService.save(cita);
+                return ResponseEntity.ok(mapCitaToDTO(actualizada));
             } catch (IllegalArgumentException e) {
-                redirectAttributes.addFlashAttribute("error", e.getMessage());
-                return "redirect:/cliente/citas/" + id + "/reprogramar";
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
-        return "redirect:/cliente/panel";
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No se puede reprogramar esta cita.");
+    }
+
+    @GetMapping("/perfil")
+    public ResponseEntity<?> getPerfil() {
+        Usuario usuario = getUsuarioAutenticado();
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setId(usuario.getId());
+        dto.setUsername(usuario.getUsername());
+        dto.setNombreCompleto(usuario.getNombreCompleto());
+        dto.setEmail(usuario.getEmail());
+        dto.setRol(usuario.getRol());
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/perfil")
+    public ResponseEntity<?> actualizarPerfil(@RequestBody java.util.Map<String, String> datos) {
+        Usuario usuario = getUsuarioAutenticado();
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (datos.containsKey("nombreCompleto")) usuario.setNombreCompleto(datos.get("nombreCompleto"));
+        if (datos.containsKey("email")) usuario.setEmail(datos.get("email"));
+        usuarioService.save(usuario);
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setId(usuario.getId());
+        dto.setUsername(usuario.getUsername());
+        dto.setNombreCompleto(usuario.getNombreCompleto());
+        dto.setEmail(usuario.getEmail());
+        dto.setRol(usuario.getRol());
+        return ResponseEntity.ok(dto);
+    }
+
+    // Mappers Manuales (Lo ideal sería MapStruct, pero para este TFG es válido y da control)
+    private CitaDTO mapCitaToDTO(Cita cita) {
+        CitaDTO dto = new CitaDTO();
+        dto.setId(cita.getId());
+        dto.setFechaHora(cita.getFechaHora());
+        dto.setEstado(cita.getEstado());
+        dto.setVehiculo(mapVehiculoToDTO(cita.getVehiculo()));
+        
+        TipoServicioDTO sDto = new TipoServicioDTO();
+        sDto.setId(cita.getServicio().getId());
+        sDto.setNombre(cita.getServicio().getNombre());
+        dto.setServicio(sDto);
+        return dto;
+    }
+
+    private VehiculoDTO mapVehiculoToDTO(Vehiculo vehiculo) {
+        if(vehiculo == null) return null;
+        VehiculoDTO dto = new VehiculoDTO();
+        dto.setId(vehiculo.getId());
+        dto.setMatricula(vehiculo.getMatricula());
+        dto.setMarca(vehiculo.getMarca());
+        dto.setModelo(vehiculo.getModelo());
+        dto.setAnio(vehiculo.getAnio());
+        
+        if (vehiculo.getPropietario() != null) {
+            UsuarioDTO uDto = new UsuarioDTO();
+            uDto.setId(vehiculo.getPropietario().getId());
+            uDto.setUsername(vehiculo.getPropietario().getUsername());
+            uDto.setNombreCompleto(vehiculo.getPropietario().getNombreCompleto());
+            uDto.setEmail(vehiculo.getPropietario().getEmail());
+            dto.setPropietario(uDto);
+        }
+        
+        return dto;
     }
 }

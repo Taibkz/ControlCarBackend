@@ -1,13 +1,19 @@
 package com.proyecto.controlcar.controller;
 
+import com.proyecto.controlcar.dto.*;
 import com.proyecto.controlcar.model.*;
 import com.proyecto.controlcar.service.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/admin")
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/admin")
 public class AdminController {
 
     private final UsuarioService usuarioService;
@@ -24,124 +30,180 @@ public class AdminController {
     }
 
     @GetMapping("/panel")
-    public String panel(Model model) {
-        model.addAttribute("totalCitas", citaService.findAll().size());
-        model.addAttribute("totalClientes", usuarioService.findAllClientes().size());
-        model.addAttribute("citas", citaService.findAll());
-        return "admin/panel";
+    public ResponseEntity<Map<String, Object>> getPanelData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalCitas", citaService.findAll().size());
+        data.put("totalClientes", usuarioService.findAllClientes().size());
+        
+        List<CitaDTO> citas = citaService.findAll().stream().map(this::mapCitaToDTO).collect(Collectors.toList());
+        data.put("citas", citas);
+        return ResponseEntity.ok(data);
     }
 
     @GetMapping("/clientes")
-    public String clientes(Model model) {
-        model.addAttribute("clientes", usuarioService.findAllClientes());
-        return "admin/clientes";
+    public ResponseEntity<List<UsuarioDTO>> getClientes() {
+        List<UsuarioDTO> clientes = usuarioService.findAllClientes().stream().map(u -> {
+            UsuarioDTO dto = new UsuarioDTO();
+            dto.setId(u.getId());
+            dto.setUsername(u.getUsername());
+            dto.setNombreCompleto(u.getNombreCompleto());
+            dto.setEmail(u.getEmail());
+            dto.setRol(u.getRol());
+            return dto;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(clientes);
     }
 
-    @GetMapping("/clientes/nuevo")
-    public String nuevoCliente(Model model) {
-        Usuario cliente = new Usuario();
+    @PostMapping("/clientes")
+    public ResponseEntity<UsuarioDTO> guardarCliente(@RequestBody Usuario cliente) {
         cliente.setRol(Rol.CLIENTE);
-        model.addAttribute("cliente", cliente);
-        return "admin/form-cliente";
+        Usuario guardado = usuarioService.save(cliente);
+        
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setId(guardado.getId());
+        dto.setUsername(guardado.getUsername());
+        dto.setNombreCompleto(guardado.getNombreCompleto());
+        dto.setEmail(guardado.getEmail());
+        dto.setRol(guardado.getRol());
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
-    @PostMapping("/clientes/guardar")
-    public String guardarCliente(@ModelAttribute Usuario cliente) {
-        cliente.setRol(Rol.CLIENTE);
-        usuarioService.save(cliente);
-        return "redirect:/admin/clientes";
-    }
-
-    @GetMapping("/clientes/eliminar/{id}")
-    public String eliminarCliente(@PathVariable Long id) {
+    @DeleteMapping("/clientes/{id}")
+    public ResponseEntity<?> eliminarCliente(@PathVariable Long id) {
         usuarioService.deleteById(id);
-        return "redirect:/admin/clientes";
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/vehiculos")
-    public String vehiculos(Model model) {
-        model.addAttribute("vehiculos", vehiculoService.findAll());
-        return "admin/vehiculos";
+    public ResponseEntity<List<VehiculoDTO>> getVehiculos() {
+        List<VehiculoDTO> vehiculos = vehiculoService.findAll().stream().map(this::mapVehiculoToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(vehiculos);
     }
 
-    @GetMapping("/vehiculos/nuevo")
-    public String nuevoVehiculo(Model model) {
-        model.addAttribute("vehiculo", new Vehiculo());
-        model.addAttribute("clientes", usuarioService.findAllClientes());
-        return "admin/form-vehiculo";
+    @PostMapping("/vehiculos")
+    public ResponseEntity<VehiculoDTO> guardarVehiculo(@RequestBody Vehiculo vehiculo) {
+        if(vehiculo.getPropietario() != null && vehiculo.getPropietario().getId() != null) {
+            Usuario prop = usuarioService.findById(vehiculo.getPropietario().getId()).orElse(null);
+            vehiculo.setPropietario(prop);
+        }
+        Vehiculo guardado = vehiculoService.save(vehiculo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapVehiculoToDTO(guardado));
     }
 
-    @PostMapping("/vehiculos/guardar")
-    public String guardarVehiculo(@ModelAttribute Vehiculo vehiculo) {
-        vehiculoService.save(vehiculo);
-        return "redirect:/admin/vehiculos";
-    }
-
-    @GetMapping("/vehiculos/eliminar/{id}")
-    public String eliminarVehiculo(@PathVariable Long id) {
+    @DeleteMapping("/vehiculos/{id}")
+    public ResponseEntity<?> eliminarVehiculo(@PathVariable Long id) {
         vehiculoService.deleteById(id);
-        return "redirect:/admin/vehiculos";
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/servicios")
-    public String servicios(Model model) {
-        model.addAttribute("servicios", tipoServicioService.findAll());
-        return "admin/servicios";
+    public ResponseEntity<List<TipoServicio>> getServicios() {
+        return ResponseEntity.ok(tipoServicioService.findAll());
     }
 
-    @GetMapping("/servicios/nuevo")
-    public String nuevoServicio(Model model) {
-        model.addAttribute("servicio", new TipoServicio());
-        return "admin/form-servicio";
+    @GetMapping("/citas/disponibilidad")
+    public ResponseEntity<List<String>> getDisponibilidad(@RequestParam String fecha) {
+        try {
+            java.time.LocalDate localDate = java.time.LocalDate.parse(fecha);
+            List<String> horas = citaService.getHorasDisponibles(localDate);
+            return ResponseEntity.ok(horas);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PostMapping("/servicios/guardar")
-    public String guardarServicio(@ModelAttribute TipoServicio servicio) {
-        tipoServicioService.save(servicio);
-        return "redirect:/admin/servicios";
+    @PostMapping("/servicios")
+    public ResponseEntity<TipoServicio> guardarServicio(@RequestBody TipoServicio servicio) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(tipoServicioService.save(servicio));
     }
 
-    @GetMapping("/servicios/eliminar/{id}")
-    public String eliminarServicio(@PathVariable Long id) {
+    @PutMapping("/servicios/{id}")
+    public ResponseEntity<?> editarServicio(@PathVariable Long id, @RequestBody TipoServicio servicio) {
+        TipoServicio existente = tipoServicioService.findById(id).orElse(null);
+        if (existente == null) return ResponseEntity.notFound().build();
+        existente.setNombre(servicio.getNombre());
+        existente.setDescripcion(servicio.getDescripcion());
+        existente.setPrecio(servicio.getPrecio());
+        existente.setDuracionMinutos(servicio.getDuracionMinutos());
+        return ResponseEntity.ok(tipoServicioService.save(existente));
+    }
+
+    @DeleteMapping("/servicios/{id}")
+    public ResponseEntity<?> eliminarServicio(@PathVariable Long id) {
         tipoServicioService.deleteById(id);
-        return "redirect:/admin/servicios";
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/citas")
-    public String citas(Model model) {
-        model.addAttribute("citas", citaService.findAll());
-        return "admin/citas";
+    public ResponseEntity<List<CitaDTO>> getCitas() {
+        List<CitaDTO> citas = citaService.findAll().stream().map(this::mapCitaToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(citas);
     }
 
-    @GetMapping("/citas/editar/{id}")
-    public String editarCita(@PathVariable Long id, Model model) {
-        Cita cita = citaService.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid cita Id:" + id));
-        model.addAttribute("cita", cita);
-        model.addAttribute("estados", EstadoCita.values());
-        return "admin/form-cita-estado";
-    }
-
-    @PostMapping("/citas/actualizar")
-    public String actualizarCita(@ModelAttribute Cita cita,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        Cita existente = citaService.findById(cita.getId()).orElse(null);
+    @PutMapping("/citas/{id}/estado")
+    public ResponseEntity<?> actualizarEstadoCita(@PathVariable Long id, @RequestParam EstadoCita estado) {
+        Cita existente = citaService.findById(id).orElse(null);
         if (existente != null) {
             try {
-                existente.setEstado(cita.getEstado());
-                citaService.save(existente);
+                existente.setEstado(estado);
+                Cita actualizada = citaService.save(existente);
+                return ResponseEntity.ok(mapCitaToDTO(actualizada));
             } catch (IllegalArgumentException e) {
-                redirectAttributes.addFlashAttribute("error", e.getMessage());
-                return "redirect:/admin/citas/editar/" + cita.getId();
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
-        return "redirect:/admin/citas";
+        return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/citas/eliminar/{id}")
-    public String eliminarCita(@PathVariable Long id,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/citas/{id}")
+    public ResponseEntity<?> eliminarCita(@PathVariable Long id) {
         citaService.deleteById(id);
-        redirectAttributes.addFlashAttribute("success", "Cita eliminada correctamente.");
-        return "redirect:/admin/citas";
+        return ResponseEntity.ok().build();
+    }
+
+    // Mappers Manuales
+    private CitaDTO mapCitaToDTO(Cita cita) {
+        CitaDTO dto = new CitaDTO();
+        dto.setId(cita.getId());
+        dto.setFechaHora(cita.getFechaHora());
+        dto.setEstado(cita.getEstado());
+        dto.setVehiculo(mapVehiculoToDTO(cita.getVehiculo()));
+        
+        TipoServicioDTO sDto = new TipoServicioDTO();
+        sDto.setId(cita.getServicio().getId());
+        sDto.setNombre(cita.getServicio().getNombre());
+        dto.setServicio(sDto);
+        
+        if (cita.getCliente() != null) {
+            UsuarioDTO uDto = new UsuarioDTO();
+            uDto.setId(cita.getCliente().getId());
+            uDto.setUsername(cita.getCliente().getUsername());
+            uDto.setNombreCompleto(cita.getCliente().getNombreCompleto());
+            uDto.setEmail(cita.getCliente().getEmail());
+            dto.setCliente(uDto);
+        }
+        
+        return dto;
+    }
+
+    private VehiculoDTO mapVehiculoToDTO(Vehiculo vehiculo) {
+        if(vehiculo == null) return null;
+        VehiculoDTO dto = new VehiculoDTO();
+        dto.setId(vehiculo.getId());
+        dto.setMatricula(vehiculo.getMatricula());
+        dto.setMarca(vehiculo.getMarca());
+        dto.setModelo(vehiculo.getModelo());
+        dto.setAnio(vehiculo.getAnio());
+        
+        if (vehiculo.getPropietario() != null) {
+            UsuarioDTO uDto = new UsuarioDTO();
+            uDto.setId(vehiculo.getPropietario().getId());
+            uDto.setUsername(vehiculo.getPropietario().getUsername());
+            uDto.setNombreCompleto(vehiculo.getPropietario().getNombreCompleto());
+            uDto.setEmail(vehiculo.getPropietario().getEmail());
+            dto.setPropietario(uDto);
+        }
+        
+        return dto;
     }
 }
