@@ -1,0 +1,67 @@
+<div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando servicios...</div>
+
+<div *ngIf="!loading">
+  <app-page-header title="Gestión de Servicios" subtitle="Crea, edita y administra los servicios ofrecidos en el taller."></app-page-header>
+  
+  <div *ngIf="!showForm" style="margin-top: -2.5rem; margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+    <button (click)="openCreate()" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.4rem;">
+      <lucide-icon [img]="Plus" [size]="17"></lucide-icon> Nuevo Servicio
+    </button>
+  </div>
+
+  <div *ngIf="showForm" class="card" style="margin-bottom: 2rem; border-left: 3px solid var(--primary); box-shadow: var(--shadow-glow-red);">
+    <h3 style="margin-bottom: 1.25rem; font-size: 1.05rem;">{{ editando ? '✏️ Editar Servicio' : '➕ Nuevo Servicio' }}</h3>
+    <form (ngSubmit)="handleSubmit()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label class="form-label">Nombre del Servicio *</label>
+        <input required class="form-input" name="nombre" [(ngModel)]="form.nombre" placeholder="Ej: Cambio de aceite" />
+      </div>
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-input" name="descripcion" [(ngModel)]="form.descripcion" placeholder="Descripción del servicio..." style="resize: vertical; min-height: 70px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Precio (€) *</label>
+        <input required type="number" step="0.01" min="0" class="form-input" name="precio" [(ngModel)]="form.precio" placeholder="Ej: 45.00" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duración (minutos) *</label>
+        <input required type="number" min="15" step="15" class="form-input" name="duracionMinutos" [(ngModel)]="form.duracionMinutos" />
+      </div>
+      <div style="grid-column: 1 / -1; display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" (click)="closeForm()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">{{ editando ? 'Guardar Cambios' : 'Crear Servicio' }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="servicios.length === 0 && !showForm" class="card" style="text-align: center; padding: 3rem;">
+    <lucide-icon [img]="Wrench" [size]="48" style="color: var(--text-muted); margin: 0 auto 1rem; opacity: 0.4;"></lucide-icon>
+    <p>No hay servicios configurados. Crea el primero.</p>
+  </div>
+
+  <div *ngIf="servicios.length > 0" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div *ngFor="let s of servicios" class="card" style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 0.25rem 0; font-size: 1.05rem;">{{ s.nombre }}</h3>
+        <p *ngIf="s.descripcion" style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: var(--text-muted);">{{ s.descripcion }}</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <span style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--secondary); font-weight: 700;">
+            <lucide-icon [img]="Euro" [size]="14"></lucide-icon> {{ s.precio ?? '—' }}€
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--text-muted);">
+            <lucide-icon [img]="Clock" [size]="14"></lucide-icon> {{ s.duracionMinutos }} min
+          </span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+        <button class="btn btn-outline" (click)="openEdit(s)" style="padding: 0.5rem 0.85rem; display: flex; align-items: center; gap: 0.3rem; font-size: 0.83rem;">
+          <lucide-icon [img]="Pencil" [size]="14"></lucide-icon> Editar
+        </button>
+        <button class="btn btn-danger" (click)="handleEliminar(s.id)" style="padding: 0.5rem 0.85rem; display: flex; align-items: center; gap: 0.3rem; font-size: 0.83rem;">
+          <lucide-icon [img]="Trash2" [size]="14"></lucide-icon> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

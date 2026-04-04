@@ -1,0 +1,65 @@
+<div>
+  <app-page-header title="Mis Vehículos" subtitle="Gestiona los vehículos asociados a tu cuenta."></app-page-header>
+  
+  <div *ngIf="!showForm" style="margin-top: -2.5rem; margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+    <button (click)="showForm = true" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.4rem;">
+      <lucide-icon [img]="Plus" [size]="17"></lucide-icon> Añadir Vehículo
+    </button>
+  </div>
+
+  <div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando vehículos...</div>
+
+  <div *ngIf="showForm" class="card" style="margin-bottom: 2rem; border-left: 3px solid var(--primary); box-shadow: var(--shadow-glow-red);">
+    <h3 style="margin-bottom: 1.25rem; font-size: 1.05rem; color: var(--text-main);">Registrar Nuevo Vehículo</h3>
+    <form (ngSubmit)="handleCreate()" class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Matrícula</label>
+        <input required type="text" class="form-input" name="matricula" [(ngModel)]="nuevoVehiculo.matricula" placeholder="Ej: 1234ABC"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Marca</label>
+        <input required type="text" class="form-input" name="marca" [(ngModel)]="nuevoVehiculo.marca" placeholder="Ej: Toyota"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Modelo</label>
+        <input required type="text" class="form-input" name="modelo" [(ngModel)]="nuevoVehiculo.modelo" placeholder="Ej: Corolla"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Año</label>
+        <input required type="number" class="form-input" name="anio" [(ngModel)]="nuevoVehiculo.anio" placeholder="Ej: 2020"/>
+      </div>
+      <div style="grid-column: 1 / -1; display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem;">
+        <button type="button" class="btn btn-outline" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Registrar</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="!loading && !showForm && vehiculos.length === 0" style="grid-column: 1 / -1; padding: 4rem 2rem; text-align: center; background: var(--bg-card); border-radius: 14px; border: 1px dashed var(--border-color);">
+    <lucide-icon [img]="Car" [size]="52" style="color: var(--text-muted); margin: 0 auto 1rem; opacity: 0.35;"></lucide-icon>
+    <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Sin vehículos registrados</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Añade tu primer vehículo para comenzar a pedir citas en el taller.</p>
+    <button class="btn btn-primary" (click)="showForm = true">
+      <lucide-icon [img]="Plus" [size]="17"></lucide-icon> Añadir mi primer vehículo
+    </button>
+  </div>
+
+  <div *ngIf="!loading && vehiculos.length > 0" class="grid-2">
+    <div *ngFor="let veh of vehiculos" class="card" style="display: flex; flex-direction: column; gap: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem; color: var(--text-main);">{{ veh.marca }} {{ veh.modelo }}</h3>
+          <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">Año: {{ veh.anio }}</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 0.45rem 0.9rem; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 700; letter-spacing: 2px; color: var(--text-main); font-family: monospace; font-size: 0.875rem;">
+          {{ veh.matricula }}
+        </div>
+      </div>
+      <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+        <button class="btn" style="color: var(--danger); background: transparent; padding: 0.25rem;" (click)="eliminarAviso()">
+          <lucide-icon [img]="Trash2" [size]="17"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

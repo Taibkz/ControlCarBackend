@@ -1,0 +1,52 @@
+<div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando historial...</div>
+
+<div *ngIf="!loading">
+  <app-page-header title="Historial de Citas" subtitle="Registro de todas las citas finalizadas y canceladas del taller."></app-page-header>
+
+  <!-- Filtros -->
+  <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+    <div style="position: relative; flex: 1; min-width: 220px;">
+      <lucide-icon [img]="Search" [size]="16" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></lucide-icon>
+      <input type="text" class="form-input" placeholder="Buscar por cliente, matrícula o servicio..." [(ngModel)]="busqueda" style="padding-left: 2.3rem;" />
+    </div>
+    <select class="form-select" [(ngModel)]="filtroEstado" style="width: auto; min-width: 160px;">
+      <option value="todas">Todos los estados</option>
+      <option value="FINALIZADA">Finalizadas</option>
+      <option value="CANCELADA">Canceladas</option>
+    </select>
+  </div>
+
+  <div *ngIf="filtradas.length === 0; else list" class="card" style="text-align: center; padding: 3rem;">
+    <lucide-icon [img]="HistoryIcon" [size]="48" style="color: var(--text-muted); margin: 0 auto 1rem; opacity: 0.4;"></lucide-icon>
+    <p>No se encontraron citas con los filtros actuales.</p>
+  </div>
+
+  <ng-template #list>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+        {{ filtradas.length }} cita{{ filtradas.length !== 1 ? 's' : '' }} encontrada{{ filtradas.length !== 1 ? 's' : '' }}
+      </p>
+      <div *ngFor="let cita of filtradas" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; flex-wrap: wrap; transition: border-color 0.2s;">
+        <div style="text-align: center; background: var(--bg-main); border: 1px solid var(--border-color); padding: 0.6rem 0.85rem; border-radius: 8px; flex-shrink: 0; min-width: 60px;">
+          <span style="display: block; font-size: 1.25rem; font-weight: 900; color: var(--primary); line-height: 1;">{{ cita.fechaHora | date:'d' }}</span>
+          <span style="display: block; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">{{ cita.fechaHora | date:'MMM yy' }}</span>
+        </div>
+        <div style="flex: 1; min-width: 180px;">
+          <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+            <strong style="font-size: 0.95rem;">{{ cita.cliente?.nombreCompleto || 'Desconocido' }}</strong>
+            <span style="padding: 1px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700;" [ngStyle]="{'background': (BADGE[cita.estado] || BADGE.FINALIZADA).bg, 'border': '1px solid ' + (BADGE[cita.estado] || BADGE.FINALIZADA).border, 'color': (BADGE[cita.estado] || BADGE.FINALIZADA).color}">
+              {{ cita.estado }}
+            </span>
+          </div>
+          <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted);">
+            🔧 {{ cita.servicio?.nombre }} — 🚗 {{ cita.vehiculo?.marca }} {{ cita.vehiculo?.modelo }}
+            <span style="font-family: monospace; font-size: 0.78rem; margin-left: 5px; background: rgba(255,255,255,0.04); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--border-color);">{{ cita.vehiculo?.matricula }}</span>
+          </p>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0;">
+          {{ cita.fechaHora | date:'h:mm a' }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,54 @@
+<div style="max-width: 600px; margin: 0 auto;">
+  <app-page-header title="Mi Perfil" subtitle="Actualiza tu información personal."></app-page-header>
+
+  <div class="card">
+    <div *ngIf="loading" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <!-- Skeletons inline for simplicity -->
+      <div style="height: 72px; width: 72px; border-radius: 50%; background: #27272a;" class="skeleton"></div>
+      <div style="height: 2.75rem; background: #27272a;" class="skeleton"></div>
+      <div style="height: 2.75rem; background: #27272a;" class="skeleton"></div>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <!-- Avatar + info no editable -->
+      <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 900; color: #000; box-shadow: var(--shadow-glow-red); flex-shrink: 0;">
+          {{ perfil?.nombreCompleto?.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h3 style="margin: 0 0 0.2rem 0; font-size: 1.15rem;">{{ perfil?.nombreCompleto }}</h3>
+          <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.85rem;">
+            <lucide-icon [img]="AtSign" [size]="13"></lucide-icon> {{ perfil?.username }}
+          </div>
+          <span style="margin-top: 0.3rem; display: inline-block; background: rgba(225,29,72,0.1); border: 1px solid rgba(225,29,72,0.25); color: var(--primary); border-radius: 20px; padding: 2px 10px; font-size: 0.72rem; font-weight: 700;">
+            {{ perfil?.rol }}
+          </span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="form-group">
+          <label class="form-label">Nombre Completo</label>
+          <div style="position: relative;">
+            <lucide-icon [img]="User" [size]="17" style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></lucide-icon>
+            <input required type="text" class="form-input" name="nombreCompleto" [(ngModel)]="form.nombreCompleto" style="padding-left: 2.5rem;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Correo Electrónico</label>
+          <div style="position: relative;">
+            <lucide-icon [img]="Mail" [size]="17" style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></lucide-icon>
+            <input required type="email" class="form-input" name="email" [(ngModel)]="form.email" style="padding-left: 2.5rem;" />
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn btn-primary" [disabled]="saving" style="display: flex; align-items: center; gap: 0.4rem;">
+            <lucide-icon [img]="Save" [size]="17"></lucide-icon> {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </ng-container>
+  </div>
+</div>

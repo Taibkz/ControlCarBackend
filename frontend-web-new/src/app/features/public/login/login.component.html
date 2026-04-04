@@ -1,0 +1,79 @@
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background-color: var(--bg-main); font-family: 'Outfit', sans-serif;">
+
+  <!-- Left Panel: Branding -->
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; background: linear-gradient(160deg, #0a0a0b 0%, #1a0505 60%, #0a0a0b 100%); border-right: 1px solid rgba(225, 29, 72, 0.15); position: relative; overflow: hidden;">
+    <!-- Glow orbs -->
+    <div style="position: absolute; top: 10%; left: 15%; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(225,29,72,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+    <div style="position: absolute; bottom: 15%; right: 10%; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(234,179,8,0.08) 0%, transparent 70%); pointer-events: none;"></div>
+
+    <!-- Logo -->
+    <img src="assets/logo.png" alt="ControlCar Logo" style="width: 400px; max-width: 80%; height: auto; object-fit: contain; filter: drop-shadow(0 0 30px rgba(225,29,72,0.35)) drop-shadow(0 0 60px rgba(234,179,8,0.15)); margin-bottom: 1.5rem;" />
+
+    <div style="display: flex; flex-direction: column; gap: 0.6rem; width: 100%; max-width: 300px;">
+      <div style="display: flex; align-items: center; gap: 0.85rem; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02);">
+        <span style="font-size: 1.2rem;">🚘</span>
+        <div>
+          <p style="margin: 0; font-weight: 700; color: var(--text-main); font-size: 0.85rem;">Gestión de Vehículos</p>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Registra y organiza tu flota</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.85rem; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02);">
+        <span style="font-size: 1.2rem;">📅</span>
+        <div>
+          <p style="margin: 0; font-weight: 700; color: var(--text-main); font-size: 0.85rem;">Citas Online</p>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Reserva en segundos</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.85rem; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02);">
+        <span style="font-size: 1.2rem;">🔧</span>
+        <div>
+          <p style="margin: 0; font-weight: 700; color: var(--text-main); font-size: 0.85rem;">Taller Inteligente</p>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Panel Kanban en tiempo real</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Login Form -->
+  <div style="flex: 0 0 430px; display: flex; flex-direction: column; justify-content: center; padding: 2.5rem 3rem; background-color: var(--bg-card); overflow-y: auto;">
+    <div style="margin-bottom: 2rem;">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.25); border-radius: 20px; padding: 3px 12px; font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+        <lucide-icon [img]="Shield" [size]="12"></lucide-icon> Acceso Seguro
+      </div>
+      <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.4rem 0;">Bienvenido de vuelta</h2>
+      <p style="color: var(--text-muted); margin: 0; font-size: 0.9rem;">Inicia sesión para acceder a tu panel.</p>
+    </div>
+
+    <div *ngIf="error" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.85rem; font-weight: 500;">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" style="display: flex; flex-direction: column; gap: 1rem;">
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <div style="position: relative;">
+          <lucide-icon [img]="User" [size]="17" style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></lucide-icon>
+          <input type="text" class="form-input" placeholder="Nombre de usuario" formControlName="username" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div style="position: relative;">
+          <lucide-icon [img]="Lock" [size]="17" style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></lucide-icon>
+          <input type="password" class="form-input" placeholder="••••••••" formControlName="password" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading || loginForm.invalid" style="padding: 0.8rem; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.25rem;">
+        <lucide-icon [img]="LogIn" [size]="18"></lucide-icon>
+        {{ isLoading ? 'Verificando...' : 'Entrar al Panel' }}
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+      ¿Aún no eres cliente? 
+      <a routerLink="/registro" style="color: var(--secondary); font-weight: 700; text-decoration: none;">Regístrate aquí</a>
+    </div>
+  </div>
+</div>

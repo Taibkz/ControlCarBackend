@@ -1,0 +1,78 @@
+<div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando calendario...</div>
+
+<div *ngIf="!loading">
+  <app-page-header title="Calendario de Citas" subtitle="Vista mensual de todas las reservas del taller."></app-page-header>
+
+  <div style="display: grid; gap: 1.5rem; align-items: start;" [ngStyle]="{'grid-template-columns': diaSeleccionado ? '1fr 340px' : '1fr'}">
+    <!-- Calendario -->
+    <div class="card" style="padding: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <button (click)="irMesAnterior()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; display: flex; align-items: center;">
+          <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon>
+        </button>
+        <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800; background: linear-gradient(90deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+          {{ MONTHS_ES[mesActual] }} {{ anioActual }}
+        </h2>
+        <button (click)="irMesSiguiente()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; display: flex; align-items: center;">
+          <lucide-icon [img]="ChevronRight" [size]="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 0.5rem;">
+        <div *ngFor="let d of DAYS_ES" style="text-align: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); padding: 0.4rem 0; text-transform: uppercase; letter-spacing: 0.05em;">{{ d }}</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;">
+        <div *ngFor="let celda of gridData.celdasArray"
+          (click)="seleccionarDia(celda.diaNum, celda.esDiaValido)"
+          style="aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem; border-radius: 8px; transition: all 0.15s;"
+          [ngStyle]="{
+            'cursor': celda.esDiaValido ? 'pointer' : 'default',
+            'opacity': celda.esDiaValido ? 1 : 0,
+            'background': diaSeleccionado === celda.diaNum ? 'rgba(225,29,72,0.15)' : celda.esHoy ? 'rgba(234,179,8,0.1)' : 'transparent',
+            'border': diaSeleccionado === celda.diaNum ? '1px solid var(--primary)' : celda.esHoy ? '1px solid rgba(234,179,8,0.4)' : '1px solid transparent'
+          }">
+          
+          <ng-container *ngIf="celda.esDiaValido">
+            <span style="font-size: 0.85rem; line-height: 1.2;" [ngStyle]="{'font-weight': celda.esHoy ? 800 : 500, 'color': celda.esHoy ? 'var(--secondary)' : diaSeleccionado === celda.diaNum ? 'var(--primary)' : 'var(--text-main)'}">
+              {{ celda.diaNum }}
+            </span>
+            <div *ngIf="celda.citas.length > 0" style="display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; justify-content: center;">
+              <div *ngFor="let c of celda.citas.slice(0, 3)" style="width: 6px; height: 6px; border-radius: 50%;" [ngStyle]="{'background': ESTADO_COLORS[c.estado] || 'var(--primary)'}"></div>
+              <span *ngIf="celda.citas.length > 3" style="font-size: 0.6rem; color: var(--text-muted);">+{{ celda.citas.length - 3 }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Leyenda -->
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <div *ngFor="let key of estadosKeys" style="display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-muted);">
+          <div style="width: 8px; height: 8px; border-radius: 50%;" [ngStyle]="{'background': ESTADO_COLORS[key]}"></div>
+          {{ key.replace('_', ' ') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel lateral -->
+    <div *ngIf="diaSeleccionado" class="card" style="position: sticky; top: 90px;">
+      <h3 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--primary);">
+        Citas del {{ diaSeleccionado }} de {{ MONTHS_ES[mesActual] }}
+      </h3>
+      <div *ngIf="citasDelDia.length === 0">
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Sin citas este día.</p>
+      </div>
+      <div *ngIf="citasDelDia.length > 0" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div *ngFor="let c of citasDelDia" style="padding: 0.85rem; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 10px;" [ngStyle]="{'border-left': '3px solid ' + ESTADO_COLORS[c.estado]}">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+            <strong style="font-size: 0.85rem;">{{ c.fechaHora | date:'shortTime' }}</strong>
+            <span style="font-size: 0.7rem; font-weight: 700;" [ngStyle]="{'color': ESTADO_COLORS[c.estado]}">{{ c.estado.replace('_',' ') }}</span>
+          </div>
+          <p style="margin: 0 0 0.2rem 0; font-size: 0.82rem; font-weight: 600;">{{ c.cliente?.nombreCompleto || 'Desconocido' }}</p>
+          <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted);">🔧 {{ c.servicio?.nombre }}</p>
+          <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted);">🚗 {{ c.vehiculo?.marca }} {{ c.vehiculo?.modelo }} <span style="font-family: monospace; font-size: 0.72rem;">({{ c.vehiculo?.matricula }})</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

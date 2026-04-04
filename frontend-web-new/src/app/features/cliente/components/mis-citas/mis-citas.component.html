@@ -1,0 +1,61 @@
+<div>
+  <app-page-header title="Mis Citas" subtitle="Consulta todas tus reservas activas y tu historial de visitas."></app-page-header>
+
+  <!-- Filtro tabs -->
+  <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+    <button (click)="setFiltro('activas')" [ngStyle]="{'background': filtro === 'activas' ? 'rgba(225,29,72,0.12)' : 'transparent', 'color': filtro === 'activas' ? 'var(--primary)' : 'var(--text-muted)', 'border': filtro === 'activas' ? '1px solid var(--primary)' : '1px solid var(--border-color)'}" style="padding: 0.5rem 1.1rem; border-radius: 20px; font-weight: 700; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; font-family: 'Outfit', sans-serif;">
+      📅 Activas
+    </button>
+    <button (click)="setFiltro('historial')" [ngStyle]="{'background': filtro === 'historial' ? 'rgba(225,29,72,0.12)' : 'transparent', 'color': filtro === 'historial' ? 'var(--primary)' : 'var(--text-muted)', 'border': filtro === 'historial' ? '1px solid var(--primary)' : '1px solid var(--border-color)'}" style="padding: 0.5rem 1.1rem; border-radius: 20px; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; font-family: 'Outfit', sans-serif;">
+      📋 Historial
+    </button>
+    <button (click)="setFiltro('todas')" [ngStyle]="{'background': filtro === 'todas' ? 'rgba(225,29,72,0.12)' : 'transparent', 'color': filtro === 'todas' ? 'var(--primary)' : 'var(--text-muted)', 'border': filtro === 'todas' ? '1px solid var(--primary)' : '1px solid var(--border-color)'}" style="padding: 0.5rem 1.1rem; border-radius: 20px; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; font-family: 'Outfit', sans-serif;">
+      🔍 Todas
+    </button>
+  </div>
+
+  <div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando citas...</div>
+
+  <div *ngIf="!loading && citasFiltradas.length === 0" class="card" style="text-align: center; padding: 3rem;">
+    <lucide-icon [img]="CalendarClock" [size]="48" style="color: var(--text-muted); margin: 0 auto 1rem; opacity: 0.4;"></lucide-icon>
+    <p>No hay citas en esta categoría.</p>
+  </div>
+
+  <div *ngIf="!loading && citasFiltradas.length > 0" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div *ngFor="let cita of citasFiltradas" class="card" style="display: flex; align-items: flex-start; gap: 1.25rem; flex-wrap: wrap;">
+      
+      <!-- Bloque de Fecha -->
+      <div style="text-align: center; background: var(--bg-main); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 10px; min-width: 68px; flex-shrink: 0;">
+        <span style="display: block; font-size: 1.5rem; font-weight: 900; color: var(--primary); line-height: 1;">
+          {{ cita.fechaHora | date:'d' }}
+        </span>
+        <span style="display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+          {{ cita.fechaHora | date:'MMM' }}
+        </span>
+        <div style="margin-top: 0.35rem; padding-top: 0.35rem; border-top: 1px dashed var(--border-color); font-size: 0.75rem; font-weight: 700; color: var(--text-main);">
+          {{ cita.fechaHora | date:'shortTime' }}
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div style="flex: 1;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+          <h3 style="margin: 0; font-size: 1rem;">{{ cita.servicio?.nombre }}</h3>
+          <span [ngStyle]="{'background': ESTADO_STYLES[cita.estado]?.bg, 'border': '1px solid ' + ESTADO_STYLES[cita.estado]?.border, 'color': ESTADO_STYLES[cita.estado]?.color}" style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">
+            <lucide-icon [img]="getIconForEstado(cita.estado)" [size]="14"></lucide-icon> {{ cita.estado.replace('_', ' ') }}
+          </span>
+        </div>
+        <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">
+          🚗 {{ cita.vehiculo?.marca }} {{ cita.vehiculo?.modelo }}
+          <span style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 4px; margin-left: 6px; border: 1px solid var(--border-color); font-size: 0.8rem;">{{ cita.vehiculo?.matricula }}</span>
+        </p>
+      </div>
+
+      <!-- Acción cancelar -->
+      <button *ngIf="ACTIVOS.includes(cita.estado)" (click)="handleCancelar(cita.id)" class="btn btn-danger" style="padding: 0.5rem 0.9rem; display: flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; flex-shrink: 0;">
+        <lucide-icon [img]="XCircle" [size]="15"></lucide-icon> Cancelar
+      </button>
+
+    </div>
+  </div>
+</div>

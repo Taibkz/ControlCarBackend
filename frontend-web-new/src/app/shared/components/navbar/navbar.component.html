@@ -1,0 +1,75 @@
+<nav class="navbar" *ngIf="(user$ | async) as user">
+  <div class="navbar-container">
+    <div class="navbar-brand" [routerLink]="user.rol === 'ADMIN' ? '/admin/panel' : '/cliente/panel'">
+      <img src="assets/logo.png?v=4" alt="ControlCar Logo" class="brand-logo-img" />
+      <span class="brand-role">{{ user.rol | lowercase }}</span>
+    </div>
+
+    <!-- Hamburger button (mobile only) -->
+    <button class="hamburger-btn" (click)="toggleMenu()" aria-label="Menú">
+      <lucide-icon *ngIf="menuOpen" [img]="X" [size]="22"></lucide-icon>
+      <lucide-icon *ngIf="!menuOpen" [img]="Menu" [size]="22"></lucide-icon>
+    </button>
+
+    <!-- Nav links -->
+    <div class="navbar-links" [class.mobile-open]="menuOpen">
+      
+      <ng-container *ngIf="user.rol === 'CLIENTE'">
+        <a routerLink="/cliente/panel" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="LayoutDashboard" [size]="17"></lucide-icon> Panel
+        </a>
+        <a routerLink="/cliente/mis-vehiculos" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="CarFront" [size]="17"></lucide-icon> Vehículos
+        </a>
+        <a routerLink="/cliente/mis-citas" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="CalendarClock" [size]="17"></lucide-icon> Mis Citas
+        </a>
+        <a routerLink="/cliente/pedir-cita" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="CalendarPlus" [size]="17"></lucide-icon> Pedir Cita
+        </a>
+        <a routerLink="/cliente/perfil" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="User" [size]="17"></lucide-icon> Mi Perfil
+        </a>
+        <a [routerLink]="['/cliente/panel']" fragment="ubicacion" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="MapPin" [size]="17"></lucide-icon> Ubícanos
+        </a>
+        <a [routerLink]="['/cliente/panel']" fragment="contacto" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="MessageSquare" [size]="17"></lucide-icon> Contacto
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="user.rol === 'ADMIN'">
+        <a routerLink="/admin/panel" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="LayoutDashboard" [size]="17"></lucide-icon> Resumen
+        </a>
+        <a routerLink="/admin/citas" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="CalendarPlus" [size]="17"></lucide-icon> Citas
+        </a>
+        <a routerLink="/admin/calendario" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="CalendarDays" [size]="17"></lucide-icon> Calendario
+        </a>
+        <a routerLink="/admin/historial" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="History" [size]="17"></lucide-icon> Historial
+        </a>
+        <a routerLink="/admin/clientes" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="Users" [size]="17"></lucide-icon> Clientes
+        </a>
+        <a routerLink="/admin/servicios" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="Wrench" [size]="17"></lucide-icon> Servicios
+        </a>
+        <a [routerLink]="['/admin/panel']" fragment="ubicacion" class="nav-link" (click)="closeMenu()">
+          <lucide-icon [img]="MapPin" [size]="17"></lucide-icon> Ubícanos
+        </a>
+      </ng-container>
+
+    </div>
+
+    <!-- Usuario y Logout alineados a la derecha de forma independiente -->
+    <div class="navbar-user" [class.mobile-open]="menuOpen">
+      <span class="user-name">{{ user.nombreCompleto }}</span>
+      <button (click)="logout()" class="logout-btn" title="Cerrar sesión" style="flex-shrink: 0; min-width: 38px;">
+        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,67 @@
+<div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando citas...</div>
+
+<div *ngIf="!loading">
+  <app-page-header title="Tablero de Citas" subtitle="Gestiona el flujo de trabajo del taller. Cambia el estado para organizar los vehículos."></app-page-header>
+
+  <div *ngIf="citas.length === 0; else board" class="card" style="text-align: center; padding: 3rem;">
+    <lucide-icon [img]="CalendarClock" [size]="48" style="color: var(--text-muted); margin: 0 auto 1rem; opacity: 0.4;"></lucide-icon>
+    <p style="color: var(--text-muted);">No hay citas registradas en el sistema todavía.</p>
+  </div>
+
+  <ng-template #board>
+    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding-bottom: 1rem; min-height: 600px;">
+      <div *ngFor="let col of columnas" style="background: rgba(255,255,255,0.02); border-radius: 14px; padding: 1rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem;" [ngStyle]="{'border-bottom': '2px solid ' + col.color}">
+          <h3 style="margin: 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;" [ngStyle]="{'color': col.color}">
+            {{ col.title }}
+          </h3>
+          <span style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold;" [ngStyle]="{'background': col.bg, 'color': col.color}">
+            {{ agrupadas(col.key).length }}
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto;">
+          <div *ngFor="let cita of agrupadas(col.key)" style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: border-color 0.2s, transform 0.15s;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;">#{{ cita.id }}</span>
+              <span style="font-size: 0.7rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--text-muted);">
+                {{ cita.fechaHora | date:'shortDate' }} {{ cita.fechaHora | date:'shortTime' }}
+              </span>
+            </div>
+
+            <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: var(--text-main);">{{ cita.cliente?.nombreCompleto || 'Desconocido' }}</h4>
+            
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;">
+              🚗 {{ cita.vehiculo?.marca }} {{ cita.vehiculo?.modelo }}
+              <span style="font-weight: 700; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); padding: 1px 4px; border-radius: 4px; font-family: monospace; font-size: 0.75rem;">{{ cita.vehiculo?.matricula }}</span>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 0.85rem; font-weight: 600;">
+              🔧 {{ cita.servicio?.nombre }}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 0.65rem; gap: 0.5rem;">
+              <select class="form-select" [value]="cita.estado" (change)="handleEstadoChange(cita.id, $event)" [ngStyle]="{'background': col.bg, 'color': col.color, 'border': '1px solid ' + col.color + '40'}" style="padding: 0.25rem 0.4rem; font-size: 0.72rem; width: auto; font-weight: 700; border-radius: 6px; flex: 1;">
+                <option value="PENDIENTE">PENDIENTE</option>
+                <option value="CONFIRMADA">CONFIRMADA</option>
+                <option value="EN_CURSO">EN CURSO</option>
+                <option value="FINALIZADA">FINALIZADA</option>
+                <option value="CANCELADA">CANCELADA</option>
+              </select>
+
+              <button (click)="handleEliminar(cita.id)" class="btn btn-outline" style="padding: 0.25rem 0.4rem; color: var(--danger); border-color: rgba(239,68,68,0.3); min-width: unset;" title="Eliminar Cita">
+                <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+              </button>
+            </div>
+
+          </div>
+          
+          <div *ngIf="agrupadas(col.key).length === 0" style="text-align: center; padding: 1.5rem 0.5rem; color: var(--border-color); font-size: 0.8rem; font-style: italic;">
+            Sin citas
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,58 @@
+<section class="location-section" id="ubicacion">
+  <div class="location-container">
+    
+    <!-- Texto Informativo -->
+    <div class="location-info">
+      <div class="badge-accent">
+        <lucide-icon [img]="MapPin" [size]="14"></lucide-icon> Dónde estamos
+      </div>
+      
+      <h2 class="section-title">
+        Nuestra base de <span class="gradient-text">operaciones</span>
+      </h2>
+
+      <p class="section-description">
+        Descubre nuestras instalaciones de última generación. Operando desde Granada, combinamos tecnología y precisión para el cuidado profundo de tu vehículo.
+      </p>
+
+      <div class="address-card">
+        <div class="address-icon">
+          <lucide-icon [img]="MapPin" [size]="24"></lucide-icon>
+        </div>
+        <div class="address-details">
+          <h4>Dirección Principal</h4>
+          <p>
+            Avenida Federico García Lorca<br />
+            18014 Granada<br />
+            España
+          </p>
+        </div>
+      </div>
+
+      <a href="https://www.google.com/maps/search/?api=1&query=Avenida+Federico+Garcia+Lorca,+18014+Granada,+España" 
+         target="_blank" 
+         class="btn btn-primary btn-cta">
+        <lucide-icon [img]="Navigation" [size]="20"></lucide-icon> Cómo llegar
+      </a>
+    </div>
+
+    <!-- Contenedor del Mapa embebido -->
+    <div class="location-map">
+      <!-- Sombras/Brillos decorativos detrás del mapa -->
+      <div class="map-glow"></div>
+      
+      <div class="map-frame">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3178.681656094254!2d-3.619067884841804!3d37.18569425624792!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd71fcb7ad0ee0ab%3A0xe6bf4dc1f16c1410!2sAv.%20Federico%20Garc%C3%ADa%20Lorca%2C%2018014%20Granada!5e0!3m2!1ses!2ses!4v1684520935547!5m2!1ses!2ses" 
+          width="100%" 
+          height="400" 
+          style="border:0; display: block;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+
+  </div>
+</section>

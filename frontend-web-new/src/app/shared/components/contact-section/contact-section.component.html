@@ -1,0 +1,77 @@
+<section class="contact-section">
+  <div class="contact-container">
+    <div class="contact-header">
+      <h2 class="contact-title">¿En qué podemos ayudarte?</h2>
+      <p class="contact-subtitle">Estamos aquí para resolver tus dudas y asistirte en lo que necesites.</p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Info Left -->
+      <div class="contact-info">
+        <h3>Ponte en contacto</h3>
+        <p>¿Tienes alguna pregunta sobre nuestros servicios o quieres solicitar un presupuesto personalizado? Rellena el formulario y te responderemos en menos de 24 horas.</p>
+
+        <div class="contact-methods">
+          <div class="method-item">
+            <div class="method-icon"><lucide-icon [img]="MessageSquare" [size]="20"></lucide-icon></div>
+            <div>
+              <span class="method-label">Soporte por Email</span>
+              <span class="method-value">brandhustl@gmail.com</span>
+            </div>
+          </div>
+          
+          <div class="method-item whatsapp-mini-card" (click)="openWhatsapp()">
+            <div class="method-icon whatsapp-bg"><lucide-icon [img]="Phone" [size]="20"></lucide-icon></div>
+            <div>
+              <span class="method-label">Atención Directa</span>
+              <span class="method-value">+34 643 18 14 64</span>
+            </div>
+            <div class="mini-badge">WhatsApp</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Right -->
+      <div class="form-container">
+        <form #contactForm="ngForm" (ngSubmit)="sendEmail()" class="premium-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Tu Nombre</label>
+              <div class="input-wrapper">
+                <input type="text" id="nombre" name="nombre" [(ngModel)]="formData.nombre" placeholder="Nombre completo" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Tu Email</label>
+              <div class="input-wrapper">
+                <input type="email" id="email" name="email" [(ngModel)]="formData.email" placeholder="email@ejemplo.com" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mensaje">¿En qué podemos ayudarte?</label>
+            <div class="input-wrapper">
+              <textarea id="mensaje" name="mensaje" [(ngModel)]="formData.mensaje" placeholder="Describe brevemente tu consulta..." required></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-send" [disabled]="!contactForm.form.valid || sending">
+            <span *ngIf="!sending">Enviar mensaje</span>
+            <span *ngIf="sending">Enviando...</span>
+            <lucide-icon *ngIf="!sending" [img]="Send" [size]="18"></lucide-icon>
+            <div *ngIf="sending" class="spinner-small"></div>
+          </button>
+
+          <div *ngIf="success" class="alert-success">
+            ✅ ¡Mensaje enviado con éxito! Te responderemos pronto.
+          </div>
+          <div *ngIf="error" class="alert-error">
+            ❌ Error al enviar. Por favor, inténtalo de nuevo.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

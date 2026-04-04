@@ -1,0 +1,68 @@
+<div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando formulario...</div>
+
+<div *ngIf="success" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 1rem;">
+  <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16,185,129,0.1); border: 2px solid rgba(16,185,129,0.4); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(16,185,129,0.2);">
+    <lucide-icon [img]="CheckCircle2" [size]="44" style="color: #6ee7b7;"></lucide-icon>
+  </div>
+  <h2 style="font-size: 1.75rem; margin: 0;">¡Cita Solicitada con Éxito!</h2>
+  <p style="color: var(--text-muted);">Redirigiendo a tu panel...</p>
+</div>
+
+<div *ngIf="!loading && !success" style="max-width: 640px; margin: 0 auto;">
+  <app-page-header title="Agendar Nueva Cita" subtitle="Selecciona tu vehículo, el servicio que necesitas y la fecha deseada."></app-page-header>
+
+  <div class="card">
+    <div *ngIf="error" style="padding: 0.85rem 1rem; background: rgba(239, 68, 68, 0.1); color: var(--danger); border-radius: 10px; margin-bottom: 1.5rem; font-weight: 500; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem;">
+      {{ error }}
+    </div>
+    
+    <form (ngSubmit)="handleSubmit()" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <div class="form-group">
+        <label class="form-label">Vehículo</label>
+        <p *ngIf="vehiculos.length === 0" style="color: var(--warning); font-size: 0.875rem; padding: 0.75rem; background: rgba(245,158,11,0.08); border-radius: 8px; border: 1px solid rgba(245,158,11,0.2); margin: 0;">
+          ⚠️ Debes registrar un vehículo en tu garaje antes de pedir una cita.
+        </p>
+        <select *ngIf="vehiculos.length > 0" class="form-select" name="selectedVehiculo" [(ngModel)]="selectedVehiculo">
+          <option value="">-- Selecciona un Vehículo --</option>
+          <option *ngFor="let v of vehiculos" [value]="v.id">{{ v.marca }} {{ v.modelo }} ({{ v.matricula }})</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tipo de Servicio</label>
+        <select class="form-select" name="selectedServicio" [(ngModel)]="selectedServicio">
+          <option value="">-- Selecciona el Servicio --</option>
+          <option *ngFor="let s of servicios" [value]="s.id">
+            {{ s.nombre }} — {{ s.precioBase || s.precio }}€ · {{ s.duracionMinutos ? s.duracionMinutos + ' min' : 'Duración variable' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Fecha de Visita</label>
+        <input type="date" class="form-input" name="fechaSeleccionada" [(ngModel)]="fechaSeleccionada" (change)="onFechaChange()" [min]="minDate" />
+      </div>
+
+      <div *ngIf="fechaSeleccionada" class="form-group">
+        <label class="form-label">Hora Disponible</label>
+        <p *ngIf="cargandoHoras" style="color: var(--text-muted); font-size: 0.875rem;">Buscando huecos libres...</p>
+        <div *ngIf="!cargandoHoras && horasDisponibles.length > 0" style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
+          <button *ngFor="let hora of horasDisponibles" type="button" (click)="horaSeleccionada = hora" [ngStyle]="{'border': horaSeleccionada === hora ? '2px solid var(--primary)' : '2px solid var(--border-color)', 'background': horaSeleccionada === hora ? 'rgba(225,29,72,0.12)' : 'var(--bg-main)', 'color': horaSeleccionada === hora ? 'var(--primary)' : 'var(--text-main)', 'font-weight': horaSeleccionada === hora ? 700 : 400, 'box-shadow': horaSeleccionada === hora ? 'var(--shadow-glow-red)' : 'none'}" style="padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; font-size: 0.9rem;">
+            <lucide-icon [img]="Clock" [size]="15"></lucide-icon> {{ hora }}
+          </button>
+        </div>
+        <p *ngIf="!cargandoHoras && horasDisponibles.length === 0" style="color: var(--danger); font-size: 0.875rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; margin: 0;">
+          No hay horas disponibles para este día (Completo o Cerrado).
+        </p>
+      </div>
+
+      <div style="margin-top: 0.5rem; display: flex; justify-content: flex-end;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2.5rem; font-size: 1rem;" [disabled]="vehiculos.length === 0 || !horaSeleccionada">
+          Confirmar Cita
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

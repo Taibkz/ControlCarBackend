@@ -1,0 +1,57 @@
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 1rem;">
+  <div class="card" style="max-width: 450px; width: 100%; padding: 2.5rem;">
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <img src="/assets/logo.png" alt="ControlCar Logo" style="width: 90px; height: 90px; object-fit: contain; margin: 0 auto 1rem auto; display: block; filter: drop-shadow(0 0 16px rgba(225,29,72,0.45));" />
+      <h2 style="font-size: 1.75rem; margin: 0 0 0.5rem 0; color: var(--text-main);">Crear Cuenta</h2>
+      <p style="color: var(--text-muted); margin: 0;">Únete a ControlCar para gestionar tus vehículos.</p>
+    </div>
+
+    <div *ngIf="error" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;">{{ error }}</div>
+    <div *ngIf="success" style="background: rgba(16, 185, 129, 0.1); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;" [innerHTML]="success + '<br/>Redirigiendo al login...'"></div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="form-group">
+        <label class="form-label">Nombre Completo</label>
+        <div style="position: relative;">
+            <lucide-icon [img]="CreditCard" [size]="18" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></lucide-icon>
+            <input type="text" class="form-input" formControlName="nombreCompleto" placeholder="Ej. Juan Pérez" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Correo Electrónico</label>
+        <div style="position: relative;">
+            <lucide-icon [img]="Mail" [size]="18" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></lucide-icon>
+            <input type="email" class="form-input" formControlName="email" placeholder="tucorreo@ejemplo.com" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nombre de Usuario</label>
+        <div style="position: relative;">
+            <lucide-icon [img]="User" [size]="18" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></lucide-icon>
+            <input type="text" class="form-input" formControlName="username" placeholder="Elige un alias único" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div style="position: relative;">
+            <lucide-icon [img]="Lock" [size]="18" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></lucide-icon>
+            <input type="password" class="form-input" formControlName="password" placeholder="••••••••" style="padding-left: 2.5rem;" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="registroForm.invalid" style="margin-top: 0.5rem; width: 100%; padding: 0.85rem;">
+        Registrarme
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+      ¿Ya tienes una cuenta? 
+      <a routerLink="/login" style="color: var(--secondary); font-weight: 600; text-decoration: none;">Inicia Sesión aquí</a>
+    </div>
+
+  </div>
+</div>
