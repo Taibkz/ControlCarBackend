@@ -8,7 +8,7 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { LocationSectionComponent } from '../../../../shared/components/location-section/location-section.component';
 import { ContactSectionComponent } from '../../../../shared/components/contact-section/contact-section.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { CalendarClock, Car, ArrowRight, LucideAngularModule } from 'lucide-angular';
+import { CalendarClock, Car, ArrowRight, MapPin, MessageSquare, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-cliente-panel',
@@ -28,6 +28,8 @@ export class ClientePanelComponent implements OnInit {
   readonly CalendarClock = CalendarClock;
   readonly Car = Car;
   readonly ArrowRight = ArrowRight;
+  readonly MapPin = MapPin;
+  readonly MessageSquare = MessageSquare;
 
   ngOnInit() {
     forkJoin({

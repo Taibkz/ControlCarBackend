@@ -65,7 +65,28 @@
     </div>
   </div>
 
+  <!-- Divider: Dashboard → Ubicación -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">
+      <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
+      <span>Dónde estamos</span>
+    </div>
+    <div class="divider-line"></div>
+  </div>
+
   <app-location-section id="ubicacion"></app-location-section>
+
+  <!-- Divider: Ubicación → Contacto -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">
+      <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
+      <span>Contáctanos</span>
+    </div>
+    <div class="divider-line"></div>
+  </div>
+
   <app-contact-section id="contacto"></app-contact-section>
 </div>
 
