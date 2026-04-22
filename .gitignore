@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Frontend exclusions (Backend repo) ###
+frontend-web-new/
+frontend-web-new.zip
+
