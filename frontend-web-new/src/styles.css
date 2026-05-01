@@ -276,6 +276,8 @@ p {
 @media (max-width: 768px) {
   .main-content {
     padding: 1.25rem;
+    padding-top: 80px;
+    padding-bottom: 85px;
   }
 
   .grid-2 {

@@ -1,0 +1,57 @@
+<nav class="bottom-nav" *ngIf="(user$ | async) as user">
+  
+  <ng-container *ngIf="user.rol === 'CLIENTE'">
+    <a routerLink="/cliente/panel" routerLinkActive="active" class="nav-item" [routerLinkActiveOptions]="{exact: true}">
+      <lucide-icon [img]="LayoutDashboard" [size]="22"></lucide-icon>
+      <span>Panel</span>
+    </a>
+    <a routerLink="/cliente/mis-vehiculos" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="CarFront" [size]="22"></lucide-icon>
+      <span>Vehículos</span>
+    </a>
+    
+    <div class="nav-item-center">
+      <a routerLink="/cliente/pedir-cita" routerLinkActive="active" class="nav-fab">
+        <lucide-icon [img]="CalendarPlus" [size]="24" color="white"></lucide-icon>
+      </a>
+      <span class="fab-label">Cita</span>
+    </div>
+
+    <a routerLink="/cliente/mis-citas" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="CalendarClock" [size]="22"></lucide-icon>
+      <span>Mis Citas</span>
+    </a>
+    <a routerLink="/cliente/perfil" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="UserIcon" [size]="22"></lucide-icon>
+      <span>Perfil</span>
+    </a>
+  </ng-container>
+
+  <ng-container *ngIf="user.rol === 'ADMIN'">
+    <a routerLink="/admin/citas" routerLinkActive="active" class="nav-item" [routerLinkActiveOptions]="{exact: true}">
+      <lucide-icon [img]="CalendarPlus" [size]="22"></lucide-icon>
+      <span>Citas</span>
+    </a>
+    <a routerLink="/admin/calendario" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="CalendarDays" [size]="22"></lucide-icon>
+      <span>Calendario</span>
+    </a>
+    
+    <div class="nav-item-center">
+      <a routerLink="/admin/historial" routerLinkActive="active" class="nav-fab">
+        <lucide-icon [img]="HistoryIcon" [size]="24" color="white"></lucide-icon>
+      </a>
+      <span class="fab-label">Historial</span>
+    </div>
+
+    <a routerLink="/admin/clientes" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="UsersIcon" [size]="22"></lucide-icon>
+      <span>Clientes</span>
+    </a>
+    <a routerLink="/admin/servicios" routerLinkActive="active" class="nav-item">
+      <lucide-icon [img]="Wrench" [size]="22"></lucide-icon>
+      <span>Servicio</span>
+    </a>
+  </ng-container>
+
+</nav>
