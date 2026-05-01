@@ -1,7 +1,20 @@
+<style>
+  @media (max-width: 767px) {
+    .login-brand-panel { display: none !important; }
+    .login-form-panel {
+      flex: 1 1 100% !important;
+      padding: 2rem 1.5rem !important;
+      min-height: 100vh;
+    }
+    .login-mobile-logo { display: flex !important; }
+  }
+  .login-mobile-logo { display: none; }
+</style>
+
 <div style="display: flex; flex-wrap: wrap; min-height: 100vh; background-color: var(--bg-main); font-family: 'Outfit', sans-serif;">
 
   <!-- Left Panel: Branding -->
-  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; background: linear-gradient(160deg, #0a0a0b 0%, #1a0505 60%, #0a0a0b 100%); border-right: 1px solid rgba(225, 29, 72, 0.15); position: relative; overflow: hidden;">
+  <div class="login-brand-panel" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; background: linear-gradient(160deg, #0a0a0b 0%, #1a0505 60%, #0a0a0b 100%); border-right: 1px solid rgba(225, 29, 72, 0.15); position: relative; overflow: hidden;">
     <!-- Glow orbs -->
     <div style="position: absolute; top: 10%; left: 15%; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(225,29,72,0.12) 0%, transparent 70%); pointer-events: none;"></div>
     <div style="position: absolute; bottom: 15%; right: 10%; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(234,179,8,0.08) 0%, transparent 70%); pointer-events: none;"></div>
@@ -35,7 +48,11 @@
   </div>
 
   <!-- Right Panel: Login Form -->
-  <div style="flex: 0 0 430px; display: flex; flex-direction: column; justify-content: center; padding: 2.5rem 3rem; background-color: var(--bg-card); overflow-y: auto;">
+  <div class="login-form-panel" style="flex: 0 0 430px; display: flex; flex-direction: column; justify-content: center; padding: 2.5rem 3rem; background-color: var(--bg-card); overflow-y: auto;">
+    <!-- Logo visible solo en móvil -->
+    <div class="login-mobile-logo" style="justify-content: center; margin-bottom: 1.5rem;">
+      <img src="assets/logo.png" alt="ControlCar Logo" style="width: 120px; height: auto; filter: drop-shadow(0 0 20px rgba(225,29,72,0.4));" />
+    </div>
     <div style="margin-bottom: 2rem;">
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.25); border-radius: 20px; padding: 3px 12px; font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
         <lucide-icon [img]="Shield" [size]="12"></lucide-icon> Acceso Seguro

@@ -1,3 +1,20 @@
+<style>
+  @media (max-width: 767px) {
+    .kanban-board {
+      grid-template-columns: repeat(5, minmax(240px, 1fr)) !important;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 1rem;
+    }
+    .kanban-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -1rem;
+      padding: 0 1rem;
+    }
+  }
+</style>
+
 <div *ngIf="loading" style="padding: 2rem; color: var(--text-muted);">Cargando citas...</div>
 
 <div *ngIf="!loading">
@@ -9,7 +26,8 @@
   </div>
 
   <ng-template #board>
-    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding-bottom: 1rem; min-height: 600px;">
+    <div class="kanban-wrapper">
+      <div class="kanban-board" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding-bottom: 1rem; min-height: 600px;">
       <div *ngFor="let col of columnas" style="background: rgba(255,255,255,0.02); border-radius: 14px; padding: 1rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem;" [ngStyle]="{'border-bottom': '2px solid ' + col.color}">
           <h3 style="margin: 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;" [ngStyle]="{'color': col.color}">
@@ -62,6 +80,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </ng-template>
 </div>
